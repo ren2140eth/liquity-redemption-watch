@@ -1,0 +1,9 @@
+# wallet address + scan state — personal, never publish
+config.json
+state.json
+
+# python
+.venv/
+__pycache__/
+*.pyc
+.env
