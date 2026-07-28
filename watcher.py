@@ -137,9 +137,15 @@ def load_json(path):
 
 
 def save_json(path, obj):
+    """Atomic write, owner-only. Both files we write are personal — config.json
+    holds the watched address, state.json the trove ids — and the atomic rename
+    would otherwise stamp the umask default (typically 0644) on every run, silently
+    undoing any chmod you applied by hand."""
     tmp = path + ".tmp"
-    with open(tmp, "w") as f:
+    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
         json.dump(obj, f, indent=2)
+    os.chmod(tmp, 0o600)  # explicit: O_CREAT mode is masked by umask
     os.replace(tmp, path)
 
 
